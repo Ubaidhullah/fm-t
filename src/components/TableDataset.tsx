@@ -253,6 +253,7 @@ export const TableDataset = ({
       title: "TXN",
       dataIndex: "date",
       render: (value: any, record: any) => (
+        console.log(value),
         <Space direction="vertical" size="small">
           <Typography.Text strong>{record?.type}</Typography.Text>
           <Typography.Text type="secondary">

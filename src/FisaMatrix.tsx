@@ -1,25 +1,25 @@
 import * as chrono from "chrono-node";
 
 import {
-  AreaChartOutlined,
-  BarChartOutlined,
+  // AreaChartOutlined,
+  // BarChartOutlined,
   CloseOutlined,
   CodepenOutlined,
   ExportOutlined,
-  GithubFilled,
+  // GithubFilled,
   ImportOutlined,
   InfoCircleOutlined,
-  LineChartOutlined,
+  // LineChartOutlined,
   PlusOutlined,
   WarningFilled,
 } from "@ant-design/icons";
 import {
   AutoComplete,
   Avatar,
-  Badge,
+  // Badge,
   Button,
   Card,
-  Col,
+  // Col,
   Collapse,
   ColorPicker,
   ConfigProvider,
@@ -29,12 +29,12 @@ import {
   Layout,
   List,
   Modal,
-  Row,
+  // Row,
   Select,
-  Space,
-  Switch,
+  // Space,
+  // Switch,
   Tabs,
-  Tag,
+  // Tag,
   Tooltip,
   Typography,
   Upload,
@@ -70,13 +70,13 @@ import { ChartCategoryAggregates } from "./components/ChartCategoryAggregates";
 import { ChartCategoryBreakdown } from "./components/ChartCategoryBreakdown";
 import { ChartDailyCredit } from "./components/ChartDailyCredit";
 import { ChartDailyDebit } from "./components/ChartDailyDebit";
-import { ChartDebitRepeats } from "./components/ChartDebitRepeats";
-import { ChartMonthlyDebit } from "./components/ChartMonthlyDebit";
+// import { ChartDebitRepeats } from "./components/ChartDebitRepeats";
+// import { ChartMonthlyDebit } from "./components/ChartMonthlyDebit";
 import EmojiPicker from "./components/EmojiPicker";
 import { InfoModalContent } from "./components/InfoModalContent";
 import MiniSearch from "minisearch";
 import { TableDataset } from "./components/TableDataset";
-import { TableUncategorized } from "./components/TableUncategorized";
+// import { TableUncategorized } from "./components/TableUncategorized";
 import axios from "axios";
 import dayjs from "dayjs";
 import { mockDataGet } from "./lib/db/mock";
@@ -86,8 +86,11 @@ import { xM } from "./config";
 
 export const FisaMatrix = () => {
   const [modal, modalCtxHolder] = Modal.useModal();
+  console.log(modalCtxHolder);
 
   const [useUSD, setUseUSD] = useState(false);
+  console.log(setUseUSD);
+
   const [exchangeRates, setExchangeRates] = useState<any>(null);
 
   const [filterRange, setFilterRange] = useState<string>("7d");
@@ -95,6 +98,7 @@ export const FisaMatrix = () => {
   const [graphType, setGraphType] = useState<"bar" | "area" | "line">("bar");
   const [aggregateType, setAggregateType] = useState<"sum" | "count">("sum");
   const [repeatsType, setRepeatsType] = useState<"repeats" | "all">("all");
+  console.log(repeatsType);
 
   const [datasetOpen, setDatasetOpen] = useState<any>([]);
   const datasetRef = useRef<any>(null);
@@ -121,6 +125,8 @@ export const FisaMatrix = () => {
   const [catColor, setCatColor] = useState("#00FF77");
 
   const [catDisplay, setCatDisplay] = useState<any>(<></>);
+  console.log(catDisplay);
+  
   const [catBkdn, setCatBkdn] = useState<any>(null);
 
   useEffect(() => {
@@ -207,8 +213,11 @@ export const FisaMatrix = () => {
 
   const balances = useResultTable("getBalances");
   const balance = balanceGet(balances);
+  console.log(balance);
 
   const categorized = useResultTable("getCategorizedCount");
+  console.log(categorized);
+
   const categoryAgrs = castToArray(
     useResultTable("getCategoryAgrs_" + filterRange)
   );
@@ -217,15 +226,19 @@ export const FisaMatrix = () => {
 
   const debitAgrs = useResultTable("getDebitAgrs_" + filterRange);
   const debitSumCmLR = debitSumCmLRGet(xM, queries);
+  console.log(debitSumCmLR);
   const debitSumData = debitSumDataGet({ queries });
   const debitRepeats = castToArray(
     useResultTable("getDebitRepeats_" + filterRange)
   );
   const debitRepeatsData = debitRepeatsDataGet({ debitRepeats, aggregateType });
+  console.log(debitRepeatsData);
+  console.log(debitSumData);
 
   const creditAgrs = useResultTable("getCreditAgrs_" + filterRange);
 
   const uncategorized = useResultTable("getUncategorized");
+  console.log(uncategorized);
 
   /* Credits in the last 31 days */
   const salary_candidates = castToArray(
