@@ -12,7 +12,7 @@ export default defineConfig({
     },
     host: "0.0.0.0",
   },
-  base: '/fm/',
+  base: '/',
   optimizeDeps: {
     exclude: ["@sqlite.org/sqlite-wasm"],
   },

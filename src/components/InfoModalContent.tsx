@@ -29,13 +29,13 @@ export const InfoModalContent = ({ trx, store, modalInfo }: any) => {
             🇲🇻 BML (Bank of Maldives)
           </strong>
         </li>
-        <a
+        {/* <a
           style={{ marginLeft: "20px" }}
           href="https://github.com/Raais/fm/issues/1"
           target="_blank"
         >
           How to export statement from Internet Banking?
-        </a>
+        </a> */}
         <p style={{ marginLeft: "20px", color: "#FFB01A", lineHeight: "0" }}>
           <Flex align="center" gap="small">
             <WarningFilled />
