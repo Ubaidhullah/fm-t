@@ -11,13 +11,13 @@ export const InfoModalContent = ({ trx, store, modalInfo }: any) => {
         ALL DATA IS STORED LOCALLY ON YOUR BROWSER.
       </strong>
       <br />
-      <span>
+      {/* <span>
         Read more about what this app is on the{" "}
         <a href="https://github.com/Raais/fm" target="_blank">
           GitHub Repo
         </a>
         .
-      </span>
+      </span> */}
       <p>
         Get started by importing your statement CSV file under the{" "}
         <strong>Settings</strong> tab.

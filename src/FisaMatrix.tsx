@@ -33,6 +33,7 @@ import {
   Select,
   Space,
   Switch,
+  Tabs,
   Tag,
   Tooltip,
   Typography,
@@ -333,39 +334,25 @@ export const FisaMatrix = () => {
   if (!trx || !categories) return;
 
   return (
-    <Layout style={{ minHeight: "100vh", margin: "10px 30px" }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <Layout.Header
         style={{
           backgroundColor: "#000",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "30px",
-          paddingBottom: "20px",
+          padding: "10px 20px",
         }}
       >
-        <Flex align="center" gap="small">
-          <Typography.Title
-            style={{ fontSize: "36px" }}
-            className="title-gradient"
-          >
-            FisaMatrix
-          </Typography.Title>
-          <span>
-            <WarningFilled
-              className="fade-in"
-              style={{ fontSize: "16px", color: "#FFB01A", cursor: "pointer" }}
-              onClick={() => modalInfo.open()}
-            />
-          </span>
-        </Flex>
-        <Flex gap="middle" align="center">
-          <span
-            style={{ fontSize: "20px", fontWeight: "bold", color: "#1677ff" }}
-          >
-            {curr(balance ?? 0, "", "")}
-          </span>
-          <span>
+        <Typography.Title style={{ fontSize: "24px" }}>
+        FisaTrack
+        </Typography.Title>
+        <WarningFilled
+          style={{ fontSize: "16px", color: "#FFB01A", cursor: "pointer" }}
+          onClick={() => modalInfo.open()}
+        />
+      </Layout.Header>
+      <span>
             <Select
               style={{ width: 120, textAlign: "left" }}
               options={Object.keys(ranges).map((key: string) => {
@@ -383,34 +370,9 @@ export const FisaMatrix = () => {
               }}
             />
           </span>
-          <Flex>
-            <ConfigProvider
-              theme={{
-                token: {
-                  colorLink: "#fff",
-                },
-              }}
-            >
-              <Button
-                href="https://github.com/Raais/fm"
-                target="_blank"
-                htmlType="button"
-                size="large"
-                style={{}}
-                icon={<GithubFilled style={{ fontSize: "24px" }} />}
-                type="link"
-              />
-            </ConfigProvider>
-          </Flex>
-        </Flex>
-      </Layout.Header>
       <Modal
-        title={
-          <h2 style={{ marginTop: "1px" }}>
-            <span className="title-gradient">FisaMatrix BETA</span> 🔥
-          </h2>
-        }
-        width={800}
+        title={<h2>FisaTrack BETA 🔥</h2>}
+        width={400}
         footer={
           <Button type="primary" onClick={closeModalInfo}>
             Close
@@ -422,453 +384,147 @@ export const FisaMatrix = () => {
       >
         <InfoModalContent trx={trx} store={store} modalInfo={modalInfo} />
       </Modal>
-      <div className="floating-div">
-        <ConfigProvider
-          theme={{
-            token: {
-              borderRadius: 32,
-            },
-          }}
-        >
-          <Select
-            style={{ width: 120, textAlign: "left" }}
-            options={Object.keys(ranges).map((key: string) => {
-              return {
-                label: rangeToStr[key],
-                value: key,
-              };
-            })}
-            value={filterRange}
-            onChange={(value) => setFilterRange(value)}
-          />
-        </ConfigProvider>
-      </div>
-      {modalCtxHolder}
-      <Layout.Content style={{ margin: "16px 16px" }}>
-        <Flex vertical gap="middle">
-          <Row gutter={16}>
-            <Col span={12}>
-              <Card bordered={false}>
-                <div>
-                  <ChartDailyDebit
-                    graphType={graphType}
-                    series={[
-                      {
-                        name: "debit",
-                        data: extractDailyDebitCredit(
-                          trx,
-                          "debited",
-                          rangeData(filterRange)
-                        ),
-                      },
-                    ]}
-                    title={curr(debitAgrs[0]?.sum.toString() ?? "0", "", "")}
-                    yformat={function (val: any) {
-                      return curr(val);
-                    }}
-                    selection={handleGotoDate}
-                  />
-                </div>
-              </Card>
-            </Col>
 
-            <Col span={12}>
-              <Card bordered={false}>
-                <div>
-                  <ChartDailyCredit
-                    graphType={graphType}
-                    series={[
-                      {
-                        name: "credit",
-                        data: extractDailyDebitCredit(
-                          trx,
-                          "credited",
-                          rangeData(filterRange)
-                        ),
-                      },
-                    ]}
-                    title={curr(creditAgrs[0]?.sum.toString() ?? "0", "", "")}
-                    yformat={function (val: any) {
-                      return curr(val);
-                    }}
-                    selection={handleGotoDate}
-                  />
-                </div>
-              </Card>
-            </Col>
-          </Row>
-
-          {debitSumData.data.length > 0 && (
-            <Card>
-              <ChartMonthlyDebit
-                series={[{ name: "Debit Sum", data: debitSumData.data }]}
-                selection={function (_e: any, _chart: any, opts: any) {
-                  const isLast =
-                    opts.dataPointIndex === debitSumData.data.length - 1;
-                  setFilterRange(
-                    isLast
-                      ? "_cm"
-                      : `__${debitSumData.months[
-                          opts.dataPointIndex
-                        ].toLowerCase()}`
-                  );
-                }}
-                yformat={function (val: any, opts: any) {
-                  const isLast =
-                    opts.dataPointIndex === debitSumData.data.length - 1;
-                  return isLast ? `${curr(val)}` : `${curr(val)}`;
-                }}
-                debitSumData={debitSumData}
-                debitSumCmLR={debitSumCmLR}
-              />
-            </Card>
-          )}
-
-          <Card
-            style={{ backgroundColor: "#0a0a0a" }}
-            bordered={false}
-            extra={
-              <Flex>
-                <Select
-                  style={{ textAlign: "left", width: "70px" }}
-                  options={[
-                    { label: "Sum", value: "sum" },
-                    { label: "TRXs", value: "count" },
-                  ]}
-                  value={aggregateType}
-                  onChange={(value) => {
-                    setAggregateType(value);
-                    localStorage.setItem("aggregateType", value);
-                  }}
-                />
-              </Flex>
-            }
-          >
-            <Flex vertical gap="middle">
-              <Card>
-                <Row>
-                  <Col span={12}>
-                    {categoryAgrsData.length > 0 && (
-                      <ChartCategoryAggregates
-                        Key={aggregateType + filterRange + useUSD + "pie"}
-                        series={
-                          aggregateType === "sum"
-                            ? categoryAgrsData.map((i: any) => i.sum)
-                            : categoryAgrsData.map((i: any) => i.count)
-                        }
-                        setCatDisplay={setCatDisplay}
-                        catSetter={(catIndex: any) => {
-                          if (!catIndex) {
-                            setCatBkdn(null);
-                          }
-                          const categoryAgr = categoryAgrs.find(
-                            (i: any) =>
-                              i.category === categoryAgrsData[catIndex]?.key
-                          );
-                          if (categoryAgr) {
-                            const category = categories[categoryAgr.category];
-                            const data = castToArray(trx).filter(
-                              (i: any) => i.category === categoryAgr?.category
-                            );
-                            const dataGrouped = data.reduce(
-                              (acc: any, cur: any) => {
-                                const key = cur.to;
-                                if (!acc[key]) {
-                                  acc[key] = {
-                                    key,
-                                    sum: 0,
-                                    count: 0,
-                                    avg: 0,
-                                  };
-                                }
-                                const amount = cur?.debited
-                                  ? parseFloat(cur?.debited)
-                                  : parseFloat(cur?.credited);
-                                acc[key].sum += amount;
-                                acc[key].count++;
-                                acc[key].avg = acc[key].sum / acc[key].count;
-                                return acc;
-                              },
-                              {}
-                            );
-                            const resultArray = Object.values(dataGrouped).sort(
-                              (a: any, b: any) =>
-                                aggregateType === "sum"
-                                  ? b.sum - a.sum
-                                  : b.count - a.count
-                            );
-
-                            // sort by sum
-                            setCatBkdn({
-                              category: category,
-                              data: resultArray,
-                            });
-                          }
-                        }}
-                        renderCatDisplay={(selected: number) =>
-                          renderCat({
-                            selected,
-                            categoryAgrs,
-                            categoryAgrsData,
-                            categoryAgrsCm,
-                            categories,
-                            queries,
-                            curr,
-                            setCatDisplay,
-                          })
-                        }
-                        title={
-                          "Category Aggregates" +
-                          " (" +
-                          rangeToStr[filterRange] +
-                          ")"
-                        }
-                        labelFormat={function (val: any) {
-                          return `${categories[val]?.emoji} ${val}`;
-                        }}
-                        valueFormat={function (val: any) {
-                          return aggregateType === "sum"
-                            ? curr(val)
-                            : `${val} trx`;
-                        }}
-                        labels={categoryAgrsData.map((i: any) => i.key)}
-                        tooltipFormat={function (val: any) {
-                          return aggregateType === "sum"
-                            ? curr(val)
-                            : `${val} trx`;
-                        }}
-                      />
-                    )}
-                  </Col>
-                  <Col span={12}>{catDisplay}</Col>
-                </Row>
-                {catBkdn?.data && catBkdn.data.length > 0 && (
-                  <Row>
-                    <Col span={24}>
-                      <Space />
-                      <Divider style={{ color: "grey" }} orientation="right">
-                        Category Breakdown
-                      </Divider>
-                      <ChartCategoryBreakdown
-                        Key={aggregateType + filterRange + useUSD + "pie3"}
-                        series={
-                          aggregateType === "sum"
-                            ? catBkdn.data.map((i: any) => i.sum)
-                            : catBkdn.data.map((i: any) => i.count)
-                        }
-                        catBkdn={catBkdn}
-                        yformat={function (val: any, opts: any) {
-                          return aggregateType === "sum"
-                            ? `${curr(val)} (${
-                                catBkdn.data[opts.seriesIndex]?.count
-                              } trx, avg ${catBkdn.data[
-                                opts.seriesIndex
-                              ]?.avg.toFixed(2)})`
-                            : `${val} (${curr(
-                                catBkdn.data[opts.seriesIndex]?.sum.toString()
-                              )})`;
-                        }}
-                      />
-                    </Col>
-                  </Row>
-                )}
-              </Card>
-              <Card>
-                {debitRepeatsData.length > 0 && (
-                  <ChartDebitRepeats
-                    Key={aggregateType + filterRange + useUSD + "pie2"}
-                    series={
-                      aggregateType === "sum"
-                        ? debitRepeatsData.map((i: any) => i.sum)
-                        : debitRepeatsData.map((i: any) => i.count)
-                    }
-                    title={
-                      "Debit Overview" + " (" + rangeToStr[filterRange] + ")"
-                    }
-                    labels={debitRepeatsData.map((i: any) => i.key)}
-                    tooltipFormat={function (val: any, opts: any) {
-                      return aggregateType === "sum"
-                        ? `${curr(val)} (${
-                            debitRepeatsData[opts.seriesIndex]?.count
-                          } trx, avg ${debitRepeatsData[
-                            opts.seriesIndex
-                          ]?.avg.toFixed(2)})`
-                        : `${val} (${curr(
-                            debitRepeatsData[opts.seriesIndex]?.sum.toString()
-                          )})`;
-                    }}
-                  />
-                )}
-                <Select
-                  style={{ textAlign: "left", width: "50px" }}
-                  options={[
-                    { label: ">1", value: "repeats" },
-                    { label: "All", value: "all" },
-                  ]}
-                  value={repeatsType}
-                  onChange={(value) => {
-                    setRepeatsType(value);
-                    localStorage.setItem("repeatsType", value);
-                    window.location.reload();
-                  }}
-                />
-              </Card>
-            </Flex>
+      <Tabs defaultActiveKey="1" centered>
+        <Tabs.TabPane tab="Daily Debit" key="1">
+          <Card bordered={false}>
+            <ChartDailyDebit
+              graphType={graphType}
+              series={[
+                {
+                  name: "debit",
+                  data: extractDailyDebitCredit(trx, "debited", rangeData(filterRange)),
+                },
+              ]}
+              title={curr(debitAgrs[0]?.sum.toString() ?? "0", "", "")}
+              yformat={(val: any) => curr(val)}
+              selection={handleGotoDate}
+            />
           </Card>
-
-          <Collapse
-            ref={datasetRef}
-            activeKey={datasetOpen}
-            onChange={(keys: any) => {
-              setDatasetOpen(keys);
-            }}
-            items={[
-              {
-                key: "1",
-                label: (
-                  <Flex justify="space-between">
-                    <strong>Dataset</strong>
-                    <Flex>
-                      <Badge
-                        overflowCount={9999}
-                        style={{ backgroundColor: "#1677ff", color: "white" }}
-                        count={
-                          trxFiltered
-                            ? trxFiltered.length
-                            : castToArray(trx).length ?? 0
-                        }
-                      />
-                      <Divider type="vertical" />
-                      <Badge
-                        overflowCount={9999}
-                        style={{ backgroundColor: "#1677ff", color: "white" }}
-                        count={categorized[0]?.count ?? 0}
-                      />
-                    </Flex>
-                  </Flex>
-                ),
-                children: (
-                  <Flex vertical gap="middle">
-                    <Flex style={{ flex: 1, justifyContent: "flex-end" }}>
-                      <Flex>
-                        <Button
-                          size="small"
-                          icon={
-                            <CloseOutlined style={{ color: "#77777740" }} />
-                          }
-                          type="text"
-                          onClick={() => {
-                            setTrxFiltered(null);
-                            setLastSearch(null);
-                          }}
-                        />
-                        <AutoComplete
-                          popupMatchSelectWidth={true}
-                          style={{ width: 250 }}
-                          options={searchAutocomplete}
-                          onSelect={(value: any) =>
-                            debounce(handleSearch)(value)
-                          }
-                          onSearch={(value: any) =>
-                            debounce(handleSearch)(value)
-                          }
-                          size="large"
-                        >
-                          <Input.Search
-                            size="middle"
-                            allowClear
-                            placeholder="search anything"
-                          />
-                        </AutoComplete>
-                      </Flex>
-                      <Flex
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginTop: "8px",
-                        }}
-                      >
-                        <ConfigProvider
-                          theme={{
-                            token: {
-                              borderRadius: 2,
-                            },
-                          }}
-                        >
-                          <Tooltip
-                            overlayInnerStyle={{ color: "lightgrey" }}
-                            overlayStyle={{
-                              fontSize: "11px",
-                              fontStyle: "italic",
-                              borderRadius: "2px",
-                            }}
-                            color="#141414"
-                            title={`Search "salary" "bakery" "ahmed" "transfer" "uncategorized" ...or a date in any format "last friday" "three days ago" "22 jul"`}
-                          >
-                            <InfoCircleOutlined
-                              style={{ color: "#77777730" }}
-                            />
-                          </Tooltip>
-                        </ConfigProvider>
-                      </Flex>
-                    </Flex>
-                    <TableDataset
-                      dataSource={
-                        trxFiltered ? trxFiltered : extractDataSource(trx)
+          <Card bordered={false}>
+            <ChartDailyCredit
+              graphType={graphType}
+              series={[
+                {
+                  name: "credit",
+                  data: extractDailyDebitCredit(trx, "credited", rangeData(filterRange)),
+                },
+              ]}
+              title={curr(creditAgrs[0]?.sum.toString() ?? "0", "", "")}
+              yformat={(val: any) => curr(val)}
+              selection={handleGotoDate}
+            />
+          </Card>
+        </Tabs.TabPane>
+          
+        <Tabs.TabPane tab="Categories" key="2">
+          <Card bordered={false}>
+            <ChartCategoryAggregates
+              Key={aggregateType + filterRange + useUSD + "pie"}
+              series={
+                aggregateType === "sum"
+                  ? categoryAgrsData.map((i: any) => i.sum)
+                  : categoryAgrsData.map((i: any) => i.count)
+              }
+              setCatDisplay={setCatDisplay}
+              catSetter={(catIndex: any) => {
+                if (!catIndex) {
+                  setCatBkdn(null);
+                }
+                const categoryAgr = categoryAgrs.find(
+                  (i: any) =>
+                    i.category === categoryAgrsData[catIndex]?.key
+                );
+                if (categoryAgr) {
+                  const category = categories[categoryAgr.category];
+                  const data = castToArray(trx).filter(
+                    (i: any) => i.category === categoryAgr?.category
+                  );
+                  const dataGrouped = data.reduce(
+                    (acc: any, cur: any) => {
+                      const key = cur.to;
+                      if (!acc[key]) {
+                        acc[key] = {
+                          key,
+                          sum: 0,
+                          count: 0,
+                          avg: 0,
+                        };
                       }
-                      curr={curr}
-                      categories={categories}
-                      to_category_ranked={to_category_ranked}
-                      store={store}
-                    />
-                  </Flex>
-                ),
-              },
-            ]}
-          />
-          <Collapse
-            collapsible={
-              (
-                Object.values(categorized).find(
-                  (item: any) => item?.key === "uncategorized"
-                ) || ({} as any)
-              )?.count
-                ? "header"
-                : "disabled"
-            }
-            items={[
-              {
-                key: "1",
-                label: (
-                  <Flex justify="space-between">
-                    <strong>Uncategorized</strong>
-                    <Badge
-                      overflowCount={99}
-                      style={{ backgroundColor: "#FF4560", color: "white" }}
-                      count={
-                        (
-                          Object.values(categorized).find(
-                            (item: any) => item?.key === "uncategorized"
-                          ) || ({} as any)
-                        )?.count ?? 0
-                      }
-                    />
-                  </Flex>
-                ),
-                children: (
-                  <TableUncategorized
-                    dataSource={extractDataSource(uncategorized)}
-                    curr={curr}
-                    categories={categories}
-                    to_category_ranked={to_category_ranked}
-                    store={store}
-                  />
-                ),
-              },
-            ]}
-          />
+                      const amount = cur?.debited
+                        ? parseFloat(cur?.debited)
+                        : parseFloat(cur?.credited);
+                      acc[key].sum += amount;
+                      acc[key].count++;
+                      acc[key].avg = acc[key].sum / acc[key].count;
+                      return acc;
+                    },
+                    {}
+                  );
+                  const resultArray = Object.values(dataGrouped).sort(
+                    (a: any, b: any) =>
+                      aggregateType === "sum"
+                        ? b.sum - a.sum
+                        : b.count - a.count
+                  );
 
+                  // sort by sum
+                  setCatBkdn({
+                    category: category,
+                    data: resultArray,
+                  });
+                }
+              }}
+              renderCatDisplay={(selected: number) =>
+                renderCat({
+                  selected,
+                  categoryAgrs,
+                  categoryAgrsData,
+                  categoryAgrsCm,
+                  categories,
+                  queries,
+                  curr,
+                  setCatDisplay,
+                })
+              }
+              title={
+                "Category Aggregates" +
+                " (" +
+                rangeToStr[filterRange] +
+                ")"
+              }
+              labelFormat={(val: any) => `${categories[val]?.emoji} ${val}`}
+              valueFormat={(val: any) =>
+                aggregateType === "sum"
+                  ? curr(val)
+                  : `${val} trx`
+              }
+              labels={categoryAgrsData.map((i: any) => i.key)}
+              tooltipFormat={(val: any) =>
+                aggregateType === "sum"
+                  ? curr(val)
+                  : `${val} trx`
+              }
+            />
+            {catBkdn?.data && catBkdn.data.length > 0 && (
+              <Card>
+                <ChartCategoryBreakdown
+                  Key={aggregateType + filterRange + useUSD + "pie3"}
+                  series={
+                    aggregateType === "sum"
+                      ? catBkdn.data.map((i: any) => i.sum)
+                      : catBkdn.data.map((i: any) => i.count)
+                  }
+                  catBkdn={catBkdn}
+                  yformat={(val: any, opts: any) =>
+                    aggregateType === "sum"
+                      ? `${curr(val)} (${catBkdn.data[opts.seriesIndex]?.count} trx, avg ${catBkdn.data[opts.seriesIndex]?.avg.toFixed(2)})`
+                      : `${val} (${curr(catBkdn.data[opts.seriesIndex]?.sum.toString())})`
+                  }
+                />
+              </Card>
+            )}
+          </Card>
           <Collapse
             collapsible="icon"
             items={[
@@ -968,221 +624,224 @@ export const FisaMatrix = () => {
               },
             ]}
           />
+        </Tabs.TabPane>
 
-          <Collapse
-            collapsible="header"
-            items={[
-              {
-                key: "1",
-                label: <strong>Settings</strong>,
-                children: (
-                  <Row gutter={16}>
-                    <Col span={8}>
-                      <Card bordered={false}>
-                        <Flex gap="small" vertical>
-                          <Tag color="#141414">
-                            {exchangeRates && (
-                              <Flex gap="middle">
-                                <Switch
-                                  unCheckedChildren="MVR"
-                                  checkedChildren="USD"
-                                  checked={useUSD}
-                                  onChange={(checked) => setUseUSD(checked)}
-                                />
-                                <span>Currency</span>
-                              </Flex>
-                            )}
-                          </Tag>
-                          <Tag color="#141414">
-                            <Flex gap="middle">
-                              <Select
-                                style={{ textAlign: "left" }}
-                                size="small"
-                                options={[
-                                  { label: <BarChartOutlined />, value: "bar" },
-                                  {
-                                    label: <AreaChartOutlined />,
-                                    value: "area",
-                                  },
-                                  {
-                                    label: <LineChartOutlined />,
-                                    value: "line",
-                                  },
-                                ]}
-                                value={graphType}
-                                onChange={(value) => {
-                                  setGraphType(value);
-                                  localStorage.setItem("graphType", value);
-                                }}
-                              />
-                              <span>Graph Type</span>
-                            </Flex>
-                          </Tag>
-                        </Flex>
-                      </Card>
-                    </Col>
-                    <Col span={8}>
-                      <Card title="My Data" bordered={true}>
-                        <Flex gap="middle" vertical>
-                          <Upload
-                            accept=".csv,.CSV"
-                            showUploadList={false}
-                            beforeUpload={(file) => {
-                              const reader = new FileReader();
-                              reader.readAsText(file);
-                              reader.onload = (e) => {
-                                if (e?.target?.result) {
-                                  const rows = parseCSVData(e.target.result);
-                                  if (rows.length > 0) {
-                                    cmd_createRecords(store, rows);
-                                  }
-                                }
-                              };
-                              return false;
-                            }}
-                          >
-                            <Button
-                              size="large"
-                              type="primary"
-                              icon={<ImportOutlined />}
-                            >
-                              Import Statement CSV
-                            </Button>
-                          </Upload>
-                          <span
-                            style={{
-                              fontSize: "10px",
-                              color: "grey",
-                              marginBottom: "-4px",
-                            }}
-                          >{`Duplicates will be skipped.`}</span>
-                          <Divider orientation="center">Database</Divider>
-                          <Flex gap="middle" wrap="wrap">
-                            <Flex>
-                              <Button
-                                icon={<ExportOutlined />}
-                                type="text"
-                                onClick={() => {
-                                  if (!sqlite3Persister || !sqlite3Instance) {
-                                    useSqlite3(
-                                      sqlite3Persister,
-                                      setSqlite3Persister,
-                                      sqlite3Instance,
-                                      setSqlite3Instance,
-                                      store
-                                    ).then(({ persister, sqlite3 }) =>
-                                      exportDb(persister, sqlite3)
-                                    );
-                                  } else {
-                                    exportDb(sqlite3Persister, sqlite3Instance);
-                                  }
-                                }}
-                              >
-                                Export SQLite
-                              </Button>
-                            </Flex>
+        <Tabs.TabPane tab="Dataset" key="3">
+          <Flex vertical gap="middle">
+            <Flex style={{ flex: 1, justifyContent: "flex-end" }}>
+              <Flex>
+                <Button
+                  size="small"
+                  icon={
+                    <CloseOutlined style={{ color: "#77777740" }} />
+                  }
+                  type="text"
+                  onClick={() => {
+                    setTrxFiltered(null);
+                    setLastSearch(null);
+                  }}
+                />
+                <AutoComplete
+                  popupMatchSelectWidth={true}
+                  style={{ width: 250 }}
+                  options={searchAutocomplete}
+                  onSelect={(value: any) =>
+                    debounce(handleSearch)(value)
+                  }
+                  onSearch={(value: any) =>
+                    debounce(handleSearch)(value)
+                  }
+                  size="large"
+                >
+                  <Input.Search
+                    size="middle"
+                    allowClear
+                    placeholder="search anything"
+                  />
+                </AutoComplete>
+              </Flex>
+              <Flex
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: "8px",
+                }}
+              >
+                <ConfigProvider
+                  theme={{
+                    token: {
+                      borderRadius: 2,
+                    },
+                  }}
+                >
+                  <Tooltip
+                    overlayInnerStyle={{ color: "lightgrey" }}
+                    overlayStyle={{
+                      fontSize: "11px",
+                      fontStyle: "italic",
+                      borderRadius: "2px",
+                    }}
+                    color="#141414"
+                    title={`Search "salary" "bakery" "ahmed" "transfer" "uncategorized" ...or a date in any format "last friday" "three days ago" "22 jul"`}
+                  >
+                    <InfoCircleOutlined
+                      style={{ color: "#77777730" }}
+                    />
+                  </Tooltip>
+                </ConfigProvider>
+              </Flex>
+            </Flex>
+            <TableDataset
+              dataSource={
+                trxFiltered ? trxFiltered : extractDataSource(trx)
+              }
+              curr={curr}
+              categories={categories}
+              to_category_ranked={to_category_ranked}
+              store={store}
+            />
+          </Flex>
+        </Tabs.TabPane>
 
-                            <Flex>
-                              <Upload
-                                accept=".db,.DB,.sqlite,.sqlite3"
-                                showUploadList={false}
-                                beforeUpload={(file) => {
-                                  if (!indexedDBPersister) return false;
-                                  const reader = new FileReader();
-                                  reader.readAsArrayBuffer(file);
-                                  reader.onload = async (e) => {
-                                    const buffer = e.target
-                                      ?.result as ArrayBuffer;
-                                    await useSqlite3(
-                                      sqlite3Persister,
-                                      setSqlite3Persister,
-                                      sqlite3Instance,
-                                      setSqlite3Instance,
-                                      store,
-                                      buffer,
-                                      indexedDBPersister
-                                    );
-                                  };
-                                  return false;
-                                }}
-                              >
-                                <Button type="text" icon={<CodepenOutlined />}>
-                                  Import SQLite
-                                </Button>
-                              </Upload>
-                            </Flex>
-                          </Flex>
-                        </Flex>
-                      </Card>
-                    </Col>
-                    <Col span={8}>
-                      <Flex gap="middle" vertical>
-                        <Card
-                          title={
-                            <strong style={{ color: "#DC4446" }}>
-                              Danger Zone
-                            </strong>
-                          }
-                          bordered={true}
-                        >
-                          <Flex wrap="wrap" gap="middle">
-                            <Flex>
-                              <Button
-                                danger
-                                onClick={() => {
-                                  resetPersistentStorage(
-                                    store,
-                                    indexedDBPersister,
-                                    setIndexedDBPersister
-                                  );
-                                  localStorage.clear();
-                                }}
-                              >
-                                Clear and Reset Defaults
-                              </Button>
-                            </Flex>
-                            <Flex>
-                              <Button
-                                danger
-                                type="text"
-                                onClick={() => {
-                                  _clearData(store);
-                                  localStorage.clear();
-                                }}
-                              >
-                                Wipe Database
-                              </Button>
-                            </Flex>
-                          </Flex>
-                        </Card>
-                        <Card title="Mock Data" bordered={true}>
-                          <Button
-                            type="dashed"
-                            onClick={() => {
-                              if (extractDataSource(trx).length > 0) {
-                                message.error(
-                                  "Cannot create mock data while data is present"
-                                );
-                                return;
-                              }
-                              const mock = mockDataGet(100);
-                              cmd_createRecords(store, mock);
-                            }}
-                          >
-                            Generate Mock Data
-                          </Button>
-                        </Card>
-                      </Flex>
-                    </Col>
-                  </Row>
-                ),
-              },
-            ]}
-          />
-        </Flex>
-      </Layout.Content>
+        <Tabs.TabPane tab="Settings" key="4">
+          <Card title="Settings">
+            <Select
+              style={{ textAlign: "left", width: "100%" }}
+              options={[
+                { label: "Sum", value: "sum" },
+                { label: "TRXs", value: "count" },
+              ]}
+              value={aggregateType}
+              onChange={value => {
+                setAggregateType(value);
+                localStorage.setItem("aggregateType", value);
+              }}
+            />
+            <Upload
+              accept=".csv,.CSV"
+              showUploadList={false}
+              beforeUpload={file => {
+                const reader = new FileReader();
+                reader.readAsText(file);
+                reader.onload = e => {
+                  if (e?.target?.result) {
+                    const rows = parseCSVData(e.target.result);
+                    if (rows.length > 0) {
+                      cmd_createRecords(store, rows);
+                    }
+                  }
+                };
+                return false;
+              }}
+            >
+              <Button size="large" type="primary" icon={<ImportOutlined />}>
+                Import Statement CSV
+              </Button>
+            </Upload>
+            <span
+              style={{
+                fontSize: "10px",
+                color: "grey",
+                marginBottom: "-4px",
+              }}
+            >{`Duplicates will be skipped.`}</span>
+            <Divider orientation="center">Database</Divider>
+            <Flex gap="middle" wrap="wrap">
+              <Button
+                icon={<ExportOutlined />}
+                type="text"
+                onClick={() => {
+                  if (!sqlite3Persister || !sqlite3Instance) {
+                    useSqlite3(
+                      sqlite3Persister,
+                      setSqlite3Persister,
+                      sqlite3Instance,
+                      setSqlite3Instance,
+                      store
+                    ).then(({ persister, sqlite3 }) =>
+                      exportDb(persister, sqlite3)
+                    );
+                  } else {
+                    exportDb(sqlite3Persister, sqlite3Instance);
+                  }
+                }}
+              >
+                Export SQLite
+              </Button>
+              <Upload
+                accept=".db,.DB,.sqlite,.sqlite3"
+                showUploadList={false}
+                beforeUpload={file => {
+                  if (!indexedDBPersister) return false;
+                  const reader = new FileReader();
+                  reader.readAsArrayBuffer(file);
+                  reader.onload = async (e:any) => {
+                    const buffer = e.target.result as ArrayBuffer;
+                    await useSqlite3(
+                      sqlite3Persister,
+                      setSqlite3Persister,
+                      sqlite3Instance,
+                      setSqlite3Instance,
+                      store,
+                      buffer,
+                      indexedDBPersister
+                    );
+                  };
+                  return false;
+                }}
+              >
+                <Button type="text" icon={<CodepenOutlined />}>
+                  Import SQLite
+                </Button>
+              </Upload>
+              <Button
+                danger
+                onClick={() => {
+                  resetPersistentStorage(
+                    store,
+                    indexedDBPersister,
+                    setIndexedDBPersister
+                  );
+                  localStorage.clear();
+                }}
+              >
+                Clear and Reset Defaults
+              </Button>
+              <Button
+                danger
+                type="text"
+                onClick={() => {
+                  _clearData(store);
+                  localStorage.clear();
+                }}
+              >
+                Wipe Database
+              </Button>
+            </Flex>
+            <Card title="Mock Data" bordered={true}>
+              <Button
+                type="dashed"
+                onClick={() => {
+                  if (extractDataSource(trx).length > 0) {
+                    message.error(
+                      "Cannot create mock data while data is present"
+                    );
+                    return;
+                  }
+                  const mock = mockDataGet(100);
+                  cmd_createRecords(store, mock);
+                }}
+              >
+                Generate Mock Data
+              </Button>
+            </Card>
+          </Card>
+        </Tabs.TabPane>
+      </Tabs>
+
       <Layout.Footer style={{ textAlign: "center" }}>
-        Made for You ❤️ Raais N.
+        Made for You ❤️ UAH .
       </Layout.Footer>
     </Layout>
   );
