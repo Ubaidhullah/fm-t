@@ -370,6 +370,23 @@ export const TableDataset = ({
       ),
     },
     {
+      title: "TO/FROM",
+      dataIndex: "ref",
+      render: (value: any, record: any) => {
+        void value;
+        const from = record?.from;
+        const to = record?.to;
+        return (
+          <Space direction="vertical" size="small">
+            <Typography.Text strong>{from}</Typography.Text>
+            <Typography.Text strong>{to}</Typography.Text>
+          </Space>
+        );
+      },
+
+    },
+
+    {
       title: (
         <>
           <Tag bordered={false} color="red">
