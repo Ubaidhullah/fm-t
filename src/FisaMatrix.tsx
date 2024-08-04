@@ -70,8 +70,8 @@ import { ChartCategoryAggregates } from "./components/ChartCategoryAggregates";
 import { ChartCategoryBreakdown } from "./components/ChartCategoryBreakdown";
 import { ChartDailyCredit } from "./components/ChartDailyCredit";
 import { ChartDailyDebit } from "./components/ChartDailyDebit";
-// import { ChartDebitRepeats } from "./components/ChartDebitRepeats";
-// import { ChartMonthlyDebit } from "./components/ChartMonthlyDebit";
+import { ChartDebitRepeats } from "./components/ChartDebitRepeats";
+import { ChartMonthlyDebit } from "./components/ChartMonthlyDebit";
 import EmojiPicker from "./components/EmojiPicker";
 import { InfoModalContent } from "./components/InfoModalContent";
 import MiniSearch from "minisearch";
@@ -135,7 +135,7 @@ export const FisaMatrix = () => {
   }, [filterRange, aggregateType]);
 
   useEffect(() => {
-    if (localStorage.getItem("graphType")) {
+    if (localStorage.getItem("graphType")) { 
       setGraphType(
         localStorage.getItem("graphType") as "bar" | "area" | "line"
       );
@@ -226,17 +226,12 @@ export const FisaMatrix = () => {
 
   const debitAgrs = useResultTable("getDebitAgrs_" + filterRange);
   const debitSumCmLR = debitSumCmLRGet(xM, queries);
-  console.log(debitSumCmLR);
   const debitSumData = debitSumDataGet({ queries });
   const debitRepeats = castToArray(
     useResultTable("getDebitRepeats_" + filterRange)
   );
   const debitRepeatsData = debitRepeatsDataGet({ debitRepeats, aggregateType });
-  console.log(debitRepeatsData);
-  console.log(debitSumData);
-
   const creditAgrs = useResultTable("getCreditAgrs_" + filterRange);
-
   const uncategorized = useResultTable("getUncategorized");
   console.log(uncategorized);
 
@@ -538,6 +533,71 @@ export const FisaMatrix = () => {
               </Card>
             )}
           </Card>
+          {debitSumData.data.length > 0 && (
+            <Card>
+              <ChartMonthlyDebit
+                series={[{ name: "Debit Sum", data: debitSumData.data }]}
+                selection={function (_e: any, _chart: any, opts: any) {
+                  const isLast =
+                    opts.dataPointIndex === debitSumData.data.length - 1;
+                  setFilterRange(
+                    isLast
+                      ? "_cm"
+                      : `__${debitSumData.months[
+                          opts.dataPointIndex
+                        ].toLowerCase()}`
+                  );
+                }}
+                yformat={function (val: any, opts: any) {
+                  const isLast =
+                    opts.dataPointIndex === debitSumData.data.length - 1;
+                  return isLast ? `${curr(val)}` : `${curr(val)}`;
+                }}
+                debitSumData={debitSumData}
+                debitSumCmLR={debitSumCmLR}
+              />
+            </Card>
+          )}
+          <Card>
+                {debitRepeatsData.length > 0 && (
+                  <ChartDebitRepeats
+                    Key={aggregateType + filterRange + useUSD + "pie2"}
+                    series={
+                      aggregateType === "sum"
+                        ? debitRepeatsData.map((i: any) => i.sum)
+                        : debitRepeatsData.map((i: any) => i.count)
+                    }
+                    title={
+                      "Debit Overview" + " (" + rangeToStr[filterRange] + ")"
+                    }
+                    labels={debitRepeatsData.map((i: any) => i.key)}
+                    tooltipFormat={function (val: any, opts: any) {
+                      return aggregateType === "sum"
+                        ? `${curr(val)} (${
+                            debitRepeatsData[opts.seriesIndex]?.count
+                          } trx, avg ${debitRepeatsData[
+                            opts.seriesIndex
+                          ]?.avg.toFixed(2)})`
+                        : `${val} (${curr(
+                            debitRepeatsData[opts.seriesIndex]?.sum.toString()
+                          )})`;
+                    }}
+                  />
+                )}
+                <Select
+                  style={{ textAlign: "left", width: "50px" }}
+                  options={[
+                    { label: ">1", value: "repeats" },
+                    { label: "All", value: "all" },
+                  ]}
+                  value={repeatsType}
+                  onChange={(value) => {
+                    setRepeatsType(value);
+                    localStorage.setItem("repeatsType", value);
+                    window.location.reload();
+                  }}
+                />
+              </Card>
           <Collapse
             collapsible="icon"
             items={[
