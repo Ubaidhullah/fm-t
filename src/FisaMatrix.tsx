@@ -914,7 +914,7 @@ export const FisaMatrix = () => {
       </Tabs>
 
       <Layout.Footer style={{ textAlign: "center" }}>
-        Made for You ❤️ UAH .
+        
       </Layout.Footer>
     </Layout>
   );
